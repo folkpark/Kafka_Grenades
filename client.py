@@ -9,5 +9,4 @@ producer = KafkaProducer(bootstrap_servers='ec2-3-95-28-49.compute-1.amazonaws.c
 
 for i in range(10):
     msg = "Testing %s" %(str(i))
-    producer.send('test', b'msg')
-    
+    producer.send("test", b'msg')
