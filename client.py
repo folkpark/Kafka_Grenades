@@ -9,6 +9,6 @@ producer = KafkaProducer(bootstrap_servers=['3.95.28.49:9092'])
 
 for i in range(10):
     msg = "Testing %s" %(str(i))
-    # producer.send('test', b'Testing!!!')
-    producer.send('test', b'some_message_bytes').get(timeout=30)
+    msg = msg.encode('utf-8')
+    producer.send('test', msg).get(timeout=30)
     print("Sending %s"%msg)
