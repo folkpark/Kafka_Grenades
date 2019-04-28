@@ -16,8 +16,7 @@ def producer():
 #	AUTO_OFFSET_RESET_CONFIG = 'earliest' is used if consumers need to look
 # back through the queue
 def consumer():
-    consumer = KafkaConsumer('test',
-                             bootstrap_servers=['3.95.28.49:9092'])
+    consumer = KafkaConsumer('test', bootstrap_servers=['3.95.28.49:9092'])
     # Should be infinite loop
     for messages in consumer:
         message = messages.value.decode("utf-8")
