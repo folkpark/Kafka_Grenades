@@ -1,7 +1,5 @@
 import Node
 from typing import List
-import threading
-from kafka import KafkaConsumer, KafkaProducer
 import time
 import random
 
