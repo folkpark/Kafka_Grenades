@@ -34,7 +34,8 @@ def producer():
             producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
-            finsihed = True
+            for thread in threads_L:
+                thread.stop()
             break
 
 
@@ -48,7 +49,8 @@ def consumer():
         if finished:
             break
         message = messages.value.decode("utf-8")
-        print("I just consumed: %s" %message)
+        print("\n\nI WAS HIT : %s \n\n" %message)
+        printMenu()
 
 
 
