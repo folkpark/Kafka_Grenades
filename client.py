@@ -13,6 +13,7 @@ def printMenu():
     print("\n\nEnter integer selection (q to quit)): ")
     print("Update Location 1: ")
     print("Throw Grenade 2: ")
+    print("Get Health: 3")
     choice_int = input("Selection: ")
     print("\n\n")
     return choice_int
@@ -26,15 +27,17 @@ def producer():
             newLoc = int(newLoc)
             print("Updating Location to %d" %newLoc)
             # Update Location HERE
-            client_node.set_position(newLoc)
-            print("Updated location to %s" %client_node.get_position())
+            myNode.set_position(newLoc)
+            print("Updated location to %s" %myNode.get_position())
         elif choice_int is '2':
             print("Throwing Grenade ... ")
             # Grenade Throw logic HERE
             # Message format: "<type>,<position thrown to>, <from what client_id>"
-            msg = "grenade,%s,%s"%(client_node.get_position(),client_node.get_id())
+            msg = "grenade,%s,%s"%(myNode.get_position(),myNode.get_id())
             msg = msg.encode('utf-8')
             producer.send('test', msg).get(timeout=30)
+        elif choice_int is '3':
+            print("Your health is = %s"%myNode.get_health())
         else:
             print("Good Bye!")
             break
@@ -49,11 +52,11 @@ def consumer():
     for messages in consumer:
         message = messages.value.decode("utf-8")
         msgType,position,sender_id = message.split(',')
-        if msgType == 'grenade':
+        if msgType == 'grenade' and sender_id != myNode.get_id():
             #Sub 45 health points from current health
-            client_node.set_health(client_node.get_health() - 45)
+            myNode.set_health(myNode.get_health() - 45)
             #If client is out of health they die
-            if client_node.get_health() <= 0:
+            if myNode.get_health() <= 0:
                 print("YOU DIED!!!")
             #Print the Grenade event to the screen
             print("\n\nI was hit with %s, at %s, from %s \n\n" %(msgType,position,sender_id))
@@ -62,7 +65,7 @@ def consumer():
 
 if __name__ == "__main__":
 
-    client_node = Node(os.environ['CLIENT_ID'], 3, 100)
+    myNode = Node(os.environ['CLIENT_ID'], 3, 100)
 
     threads_L = []
     producerThread = threading.Thread(target=producer)
