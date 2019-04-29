@@ -26,6 +26,9 @@ def producer():
         elif choice_int is '2':
             print("Throwing Grenade ... ")
             # Grenade Throw logic HERE
+            msg = "throwing grenade to location"
+            msg = msg.encode('utf-8')
+            producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
             break
