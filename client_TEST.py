@@ -44,9 +44,10 @@ def consumer():
     consumer = KafkaConsumer('test', bootstrap_servers=['3.95.28.49:9092'])
     # Should be infinite loop
     for messages in consumer:
-        while again:
-            message = messages.value.decode("utf-8")
-            print("\n\nI WAS HIT : %s \n\n" %message)
+        message = messages.value.decode("utf-8")
+        print("\n\nI WAS HIT : %s \n\n" %message)
+        if not again:
+            break
 
 
 
