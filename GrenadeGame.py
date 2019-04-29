@@ -41,9 +41,9 @@ class GameSetup:
                 print('%s players are not enough' % len(self.player_list))
 
 
-class GameThread(threading.Thread):
-
-    def __init__(self, threadID, ):
+# class GameThread(threading.Thread):
+#
+#     def __init__(self, threadID, ):
 
 
 
