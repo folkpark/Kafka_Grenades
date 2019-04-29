@@ -59,7 +59,7 @@ def consumer():
             if myNode.get_health() <= 0:
                 print("YOU DIED!!!")
             #Print the Grenade event to the screen
-            print("\n\nI was hit with %s, at %s, from %s \n\n" %(msgType,position,sender_id))
+            print("\n\nI was hit with %s, at position %s, from %s \n\n" %(msgType,position,sender_id))
 
 
 
