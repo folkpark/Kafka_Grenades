@@ -47,6 +47,7 @@ def consumer():
         message = messages.value.decode("utf-8")
         print("\n\nI WAS HIT : %s \n\n" %message)
         if not again:
+            print("Consumer break")
             break
 
 
