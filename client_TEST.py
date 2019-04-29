@@ -47,11 +47,11 @@ def consumer():
     for messages in consumer:
         message = messages.value.decode("utf-8")
         print("\n\nI WAS HIT : %s \n\n" %message)
-        printMenu()
 
 
 
 if __name__ == "__main__":
+    global threads_L
     threads_L = []
     producerThread = threading.Thread(target=producer)
     threads_L.append(producerThread)
