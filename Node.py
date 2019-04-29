@@ -3,10 +3,9 @@ import GrenadeGame
 
 
 class Node:
-    consumer_dict = {}
 
-    def __init__(self, role, broker_addr, client_id, start_position, timeout=1000):
-        self.id = client_id
+    def __init__(self, role, broker_addr, client_id, start_position, timeout=-1):
+        self.id = str(client_id)
         self.role = role
         if role == 'client':
             self.grenade = GrenadeGame.Grenade()
@@ -18,12 +17,21 @@ class Node:
     def grenade_throw(self, velocity=0, angle=0):
         self.grenade.grenade_throw(velocity, angle, self.position)
 
-    def subscribe_topics(self, topic):
-        self.consumer_dict[topic] = KafkaConsumer(topic, bootstrap_servers=self.broker_addr,
-                                                  consumer_timeout_ms=self.timeout,)
+    def subscribe_topics(self, topic, earliest=False):
 
-    def publish(self, topic, payload):
-        self.producer.send(topic, payload, timestamp_ms=True)
+        if earliest is True:
+
+            return KafkaConsumer(topic, bootstrap_servers=self.broker_addr,
+                                 auto_offset_reset='earliest',
+                                 consumer_timeout_ms=self.timeout,
+                                 )
+        else:
+            return KafkaConsumer(topic, bootstrap_servers=self.broker_addr,
+                                 consumer_timeout_ms=self.timeout,)
+
+    def publisher(self, topic, payload):
+        payload = payload.encode('utf-8')
+        self.producer.send(topic, payload)
 
     def update_position(self, pos_rep):
         self.position = pos_rep

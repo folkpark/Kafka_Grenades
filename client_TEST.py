@@ -3,7 +3,7 @@ import threading
 import time
 
 def producer():
-    producer = KafkaProducer(bootstrap_servers=['3.95.28.49:9092'])
+    producer = KafkaProducer(bootstrap_servers=['ec2-34-207-68-81.compute-1.amazonaws.com:9092'])
     while True:
         for i in range(5):
             msg = "Producing %s" %(str(i))
@@ -16,7 +16,7 @@ def producer():
 #	AUTO_OFFSET_RESET_CONFIG = 'earliest' is used if consumers need to look
 # back through the queue
 def consumer():
-    consumer = KafkaConsumer('test', bootstrap_servers=['3.95.28.49:9092'])
+    consumer = KafkaConsumer('test', bootstrap_servers=['ec2-34-207-68-81.compute-1.amazonaws.com:9092'])
     # Should be infinite loop
     for messages in consumer:
         message = messages.value.decode("utf-8")

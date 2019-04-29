@@ -1,59 +1,57 @@
-import Node
-from typing import List
 import threading
-from kafka import KafkaConsumer, KafkaProducer
 import time
 import random
 
 
 class GrenadeGame:
+    send_threads_dict = {}
+    receive_threads_dict = {}
 
-    def __init__(self, client_list: List[Node], server_list: List[Node], default_game_topic='001',
-                 default_connect_topic='players'):
-        GameSetup(client_list, server_list, default_game_topic, default_connect_topic)
+    def __init__(self, node, default_game_topic='001', default_connect_topic='players'):
+        self.setup = GameSetup(node, default_game_topic, default_connect_topic)
+        self.node = node
+        self.server_topic = default_game_topic
+
+    def start(self):
+        if self.node.role == 'server':
+            for player in self.setup.player_list:
+                self.send_threads_dict[player] = threading.Thread(target=self.node.producer)
+                self.receive_threads_dict[player] = threading.Thread(target=self.node.subscribe_topics('player'+player))
+        else:
+            self.send_threads_dict['server'] = threading.Thread(target=self.node.producer)
+            self.receive_threads_dict['server'] = threading.Thread(target=self.node.subscribe_topics('player' +
+                                                                                                     self.node.id))
+        self.receive_threads_dict['grenades'] = threading.Thread(target=self.node.subscribe_topics('grenade'))
 
 
 class GameSetup:
-
     player_list = []
 
-    def __init__(self, client_list, server_list, game_topic, connect_topic):
-        self.player_total = len(client_list)
-        self.client_setup(client_list)
+    def __init__(self, node, game_topic, connect_topic):
         self.game_topic = game_topic
         self.connect_topic = connect_topic
+        if node.role == 'client':
+            self.client_setup(node)
+        else:
+            self.server_setup(node)
 
-    def client_setup(self, client_list):
-        for client in client_list:
-            client.publish(self.connect_topic, client.id)
+    def client_setup(self, client):
+        print('client publishing %s id to %s' % (client.id, self.connect_topic))
 
-    def server_setup(self, server_list):
-        player_topics_list = []
-        for server in server_list:
-            print('Server %s Connecting to %d players' % (server.id, self.player_total))
-            find_players = server.subscribe_topics(self.connect_topic)
+        client.publisher(self.connect_topic, client.id)
 
-            for message in find_players:
-                self.player_list.append(message.value.decode('utf8'))
-            if len(self.player_list) > 1:
-                player_topics_list.append()
-            else:
-                print('%s players are not enough' % len(self.player_list))
+    def server_setup(self, server):
 
+        print('Server %s Connecting to players' % server.id)
+        find_players = server.subscribe_topics(self.connect_topic, earliest=True)
 
-class GameThread(threading.Thread):
-
-    def __init__(self, threadID, ):
-
-
-
-
-
-
+        for message in find_players:
+            message = message.value.decode("utf-8")
+            self.player_list.append(message)
+            print('connected to %s' % message)
 
 
 class Grenade:
-
     spoon_depressed: bool
 
     def __init__(self):
@@ -79,8 +77,3 @@ class Grenade:
             return 3
         else:
             return fuse
-
-
-
-
-
