@@ -7,7 +7,7 @@ import time
 # msg = msg.encode('utf-8')
 # producer.send('test', msg).get(timeout=30)
 
-finished = True
+finished = False
 
 def printMenu():
     print("\n\nEnter integer selection (q to quit)): ")
@@ -34,7 +34,7 @@ def producer():
             producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
-            finsihed = False
+            finsihed = True
             break
 
 
