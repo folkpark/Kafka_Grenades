@@ -7,7 +7,7 @@ import time
 # msg = msg.encode('utf-8')
 # producer.send('test', msg).get(timeout=30)
 
-
+again = True
 def printMenu():
     print("\n\nEnter integer selection (q to quit)): ")
     print("Update Location 1: ")
@@ -33,6 +33,7 @@ def producer():
             producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
+            again = False
             break
 
 
@@ -43,13 +44,13 @@ def consumer():
     consumer = KafkaConsumer('test', bootstrap_servers=['3.95.28.49:9092'])
     # Should be infinite loop
     for messages in consumer:
-        message = messages.value.decode("utf-8")
-        print("\n\nI WAS HIT : %s \n\n" %message)
+        while again:
+            message = messages.value.decode("utf-8")
+            print("\n\nI WAS HIT : %s \n\n" %message)
 
 
 
 if __name__ == "__main__":
-    global threads_L
     threads_L = []
     producerThread = threading.Thread(target=producer)
     threads_L.append(producerThread)
