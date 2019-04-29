@@ -7,7 +7,6 @@ import time
 # msg = msg.encode('utf-8')
 # producer.send('test', msg).get(timeout=30)
 
-again = True
 def printMenu():
     print("\n\nEnter integer selection (q to quit)): ")
     print("Update Location 1: ")
@@ -25,15 +24,15 @@ def producer():
             newLoc = int(newLoc)
             print("Updating Location to %d" %newLoc)
             # Update Location HERE
+
         elif choice_int is '2':
             print("Throwing Grenade ... ")
             # Grenade Throw logic HERE
-            msg = "throwing grenade to location"
+            msg = "throwing grenade to location %s"
             msg = msg.encode('utf-8')
             producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
-            again = False
             break
 
 
@@ -46,9 +45,6 @@ def consumer():
     for messages in consumer:
         message = messages.value.decode("utf-8")
         print("\n\nI WAS HIT : %s \n\n" %message)
-        if not again:
-            print("Consumer break")
-            break
 
 
 
