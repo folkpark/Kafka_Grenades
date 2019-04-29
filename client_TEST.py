@@ -33,8 +33,6 @@ def producer():
             producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
-            for thread in threads_L:
-                thread.terminate()
             break
 
 
