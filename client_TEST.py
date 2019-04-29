@@ -2,16 +2,19 @@ from kafka import KafkaConsumer, KafkaProducer
 import threading
 import time
 
+
 # msg = "Producing %s" % (str(i))
 # msg = msg.encode('utf-8')
 # producer.send('test', msg).get(timeout=30)
 
+finished = True
 
 def printMenu():
-    print("\n Enter integer selection (q to quit)): ")
+    print("\n\nEnter integer selection (q to quit)): ")
     print("Update Location 1: ")
     print("Throw Grenade 2: ")
     choice_int = input("Selection: ")
+    print("\n\n")
     return choice_int
 
 def producer():
@@ -31,6 +34,7 @@ def producer():
             producer.send('test', msg).get(timeout=30)
         else:
             print("Good Bye!")
+            finsihed = False
             break
 
 
@@ -41,6 +45,8 @@ def consumer():
     consumer = KafkaConsumer('test', bootstrap_servers=['3.95.28.49:9092'])
     # Should be infinite loop
     for messages in consumer:
+        if finished:
+            break
         message = messages.value.decode("utf-8")
         print("I just consumed: %s" %message)
 
