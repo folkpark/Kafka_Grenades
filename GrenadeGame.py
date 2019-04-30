@@ -54,7 +54,7 @@ class Grenade:
     # Direction is cardinal direction in degrees, 0, 90, 180, 270
     # Velocity is spaces per second
     def grenade_throw(self):
-        temp = self.player_id + self.x + self.y + self.velocity + self.direction + str(self.fuse_length).encode('utf8')
+        temp = (self.player_id + self.x + self.y + self.velocity + self.direction + str(self.fuse_length)).encode('utf8')
         self.grenade_id = hashlib.md5(temp)
 
         msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction,
