@@ -46,7 +46,7 @@ class Player:
                 direction = input('Enter a direction(0, 90, 180, 270): ')
                 velocity = input('Velocity(0-5): ')
                 grenade = Grenade(str(self.MyNode.id), str(myNode.x),str(myNode.y),str(velocity),
-                                  str(direction),str(producer))
+                                  str(direction),producer)
                 grenade.grenade_throw()
 
                 # msg = "grenade,%s,%s"%(myNode.get_position(), myNode.get_id())
