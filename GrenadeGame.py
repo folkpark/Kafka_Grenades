@@ -5,15 +5,15 @@ from Node import Node
 
 
 class GameSetup:
-    broker_addr = 'ec2-34-207-68-81.compute-1.amazonaws.com:9092'
+    broker_addr = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
 
-    def __init__(self, node=None, connect_topic='player'):
+    def __init__(self, node=None, connect_topic='players'):
         self.connect_topic = connect_topic
-        self.node_dict = {}
         if node is not None:
             self.client_setup(node)
         else:
             self.server_setup()
+        self.node_dict = {}
 
     def client_setup(self, client):
         print('client publishing id %s to %s' % (client.id, self.connect_topic))
@@ -58,14 +58,13 @@ class Grenade:
 
         temp = (self.player_id + self.x + self.y + self.velocity + self.direction + str(self.fuse_length)).encode('utf8')
         self.grenade_id = hashlib.md5(temp)
-
-        msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction, self.fuse_length, self.grenade_id).encode('utf8')
+        msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction,
+                                            self.fuse_length, self.grenade_id).encode('utf8')
         self.producer.send('grenade', msg)
 
     @staticmethod
     def fuse():
         rand = random.random()
-
         fuse = rand * 5
         if fuse < 3:
             return 3

@@ -40,13 +40,18 @@ class Player:
                 producer.send(self.MyNode.id, message)
                 print("Updated location to %s" % myNode.get_position())
             elif choice_int is '2':
-                direction = input('Direction(0, 90, 180, 270): ')
-                velocity = input('Velocity(0-5): ')
                 print("Throwing Grenade ... ")
                 # Grenade Throw logic HERE
                 # Message format: "<type>,<position thrown to>, <from what client_id>"
-                grenade = Grenade(self.MyNode.id, self.MyNode.x, self.MyNode.y, velocity, direction, producer)
+                direction = input('Enter a direction(0, 90, 180, 270): ')
+                velocity = input('Velocity(0-5): ')
+                grenade = Grenade(str(self.MyNode.id), str(myNode.x),str(myNode.y),str(velocity),
+                                  str(direction),producer)
                 grenade.grenade_throw()
+
+                # msg = "grenade,%s,%s"%(myNode.get_position(), myNode.get_id())
+                # msg = msg.encode('utf-8')
+                # producer.send('grenade', msg)
             elif choice_int is '3':
                 print("Your health is = %s" % myNode.get_health())
             else:
@@ -60,7 +65,7 @@ class Player:
     def consumer(self, topic):
 
         while self.stop is False:
-            consumer = KafkaConsumer(topic, bootstrap_servers=self.broker, consumer_timeout_ms=30000)
+            consumer = KafkaConsumer(topic, bootstrap_servers=self.broker, consumer_timeout_ms=15000)
             # Should be infinite loop
             for messages in consumer:
                 message = messages.value.decode("utf-8")
@@ -77,11 +82,11 @@ class Player:
 
 if __name__ == "__main__":
 
-    client_id = 1
-    # myNode = Node(os.environ['CLIENT_ID'], 3, 3, 100)
-    myNode = Node(str(client_id), 3, 3, 100)
+    client_id = os.environ['CLIENT_ID']
+    myNode = Node(os.environ['CLIENT_ID'], 3, 3, 100)
+    #myNode = Node(str(client_id), 3, 3, 100)
     GameSetup(myNode)
-    player = Player(myNode, 'ec2-34-207-68-81.compute-1.amazonaws.com:9092')
+    player = Player(myNode, 'ec2-3-95-28-49.compute-1.amazonaws.com:9092')
 
     threads_L = []
     producerThread = threading.Thread(target=player.producer())
@@ -89,7 +94,7 @@ if __name__ == "__main__":
     consumerThread1 = threading.Thread(target=player.consumer('grenade'))
     threads_L.append(consumerThread1)
     consumerThread1.start()
-    consumerThread2 = threading.Thread(target=player.consumer(str(client_id)))
+    consumerThread2 = threading.Thread(target=player.consumer(client_id))
     threads_L.append(consumerThread2)
     consumerThread2.start()
     time.sleep(1)

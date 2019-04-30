@@ -8,7 +8,7 @@ Y_MAX = 10
 
 
 class GrenadeServer:
-    broker_addr = 'ec2-34-207-68-81.compute-1.amazonaws.com:9092'
+    broker_addr = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
     game = GameSetup()
     player_dict = game.node_dict
     recv_threads_dict = {}
@@ -24,10 +24,8 @@ class GrenadeServer:
     def consumer_threads(self, topic):
 
         consumer = KafkaConsumer(topic, bootstrap_servers=self.broker_addr,)
-
         for message in consumer:
             message = message.value.decode("utf-8")
-
             if topic == 'grenade':
                 self.handle_grenade(message)
             else:
@@ -85,15 +83,4 @@ class GrenadeServer:
 
 
 if __name__ == "__main__":
-
     GrenadeServer()
-
-
-
-
-
-
-
-
-
-
