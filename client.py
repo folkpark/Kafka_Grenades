@@ -82,7 +82,7 @@ class Player:
 
 if __name__ == "__main__":
 
-    #client_id = 1
+    client_id = os.environ['CLIENT_ID']
     myNode = Node(os.environ['CLIENT_ID'], 3, 3, 100)
     #myNode = Node(str(client_id), 3, 3, 100)
     GameSetup(myNode)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     consumerThread1 = threading.Thread(target=player.consumer('grenade'))
     threads_L.append(consumerThread1)
     consumerThread1.start()
-    consumerThread2 = threading.Thread(target=player.consumer(str(client_id)))
+    consumerThread2 = threading.Thread(target=player.consumer(client_id))
     threads_L.append(consumerThread2)
     consumerThread2.start()
     time.sleep(1)

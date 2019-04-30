@@ -22,10 +22,8 @@ class GrenadeServer:
     def consumer_threads(self, topic):
 
         consumer = KafkaConsumer(topic, bootstrap_servers=self.broker_addr,)
-
         for message in consumer:
             message = message.value.decode("utf-8")
-
             if topic == 'grenade':
                 self.handle_grenade(message)
             else:
@@ -83,15 +81,4 @@ class GrenadeServer:
 
 
 if __name__ == "__main__":
-
     GrenadeServer()
-
-
-
-
-
-
-
-
-
-
