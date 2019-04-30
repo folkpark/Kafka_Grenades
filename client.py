@@ -81,7 +81,7 @@ if __name__ == "__main__":
     # myNode = Node(os.environ['CLIENT_ID'], 3, 3, 100)
     myNode = Node(str(client_id), 3, 3, 100)
     GameSetup(myNode)
-    player = Player(myNode, 'ec2-34-207-68-81.compute-1.amazonaws.com:9092')
+    player = Player(myNode, 'ec2-3-95-28-49.compute-1.amazonaws.com:9092')
 
     threads_L = []
     producerThread = threading.Thread(target=player.producer())

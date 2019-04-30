@@ -57,13 +57,13 @@ class Grenade:
         temp = self.player_id + self.x + self.y + self.velocity + self.direction + str(self.fuse_length).encode('utf8')
         self.grenade_id = hashlib.md5(temp)
 
-        msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction, self.fuse_length, self.grenade_id).encode('utf8')
+        msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction,
+                                            self.fuse_length, self.grenade_id).encode('utf8')
         self.producer.send('grenade', msg)
 
     @staticmethod
     def fuse():
         rand = random.random()
-
         fuse = rand * 5
         if fuse < 3:
             return 3
