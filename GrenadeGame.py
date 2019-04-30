@@ -6,7 +6,7 @@ from Node import Node
 
 
 class GameSetup:
-    broker_addr = 'ec2-34-207-68-81.compute-1.amazonaws.com:9092'
+    broker_addr = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
 
     def __init__(self, node=None, connect_topic='players'):
         self.connect_topic = connect_topic
@@ -26,7 +26,7 @@ class GameSetup:
 
     def server_setup(self):
         print('Server Connecting to players')
-        find_players = KafkaConsumer(self.connect_topic, bootstrap_servers='ec2-34-207-68-81.compute-1.amazonaws.com:9092',
+        find_players = KafkaConsumer(self.connect_topic, bootstrap_servers='ec2-3-95-28-49.compute-1.amazonaws.com:9092',
                                      auto_offset_reset='earliest',
                                      consumer_timeout_ms=5000,)
 
