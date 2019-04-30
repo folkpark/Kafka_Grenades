@@ -106,7 +106,7 @@ class Player:
         print('I received %s from %s' % (msg_type, sender))
 
         if msg_type == 'SOSORRY':
-            print('\nSOSORRY received, I am dead :(')
+            print('SOSORRY received, I am dead :(')
             self.stop = True
 
     def handle_grenade(self, message):
@@ -158,9 +158,9 @@ class Player:
 if __name__ == "__main__":
 
     # client_id = os.environ['CLIENT_ID']
-    client_id = 'justin'
+    client_id = 'parker'
     broker = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
-    myNode = Node(client_id, 10, 5, 100)
+    myNode = Node(client_id, 0, 5, 100)
     GameSetup(broker, myNode)
     player = Player(myNode, broker)
 

@@ -68,16 +68,20 @@ class GrenadeServer:
 
                 if direction == '90' or direction == '270':
                     y_pos = y
-                    x_pos = x + (velocity*fuse_length)
-
+                    if direction == '90':
+                        x_pos = x + (velocity * fuse_length)
+                    else:
+                        x_pos = x - (velocity * fuse_length)
                     if x_pos > X_MAX:
                         x_pos = X_MAX
                     if x_pos < 0:
                         x_pos = 0
                 else:
                     x_pos = x
-                    y_pos = y + (velocity*fuse_length)
-
+                    if direction == '0':
+                        y_pos = y + (velocity * fuse_length)
+                    else:
+                        y_pos = y - (velocity * fuse_length)
                     if y_pos > Y_MAX:
                         y_pos = Y_MAX
                     if y_pos < 0:
