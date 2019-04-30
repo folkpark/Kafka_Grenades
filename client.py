@@ -43,10 +43,14 @@ class Player:
                 print("Throwing Grenade ... ")
                 # Grenade Throw logic HERE
                 # Message format: "<type>,<position thrown to>, <from what client_id>"
-                grenade = Grenade(self.MyNode.id, )
-                msg = "grenade,%s,%s"%(myNode.get_position(), myNode.get_id())
-                msg = msg.encode('utf-8')
-                producer.send('grenade', msg)
+                direction = input('Enter a direction(0, 90, 180, 270): ')
+                velocity = input('Velocity(0-5): ')
+                grenade = Grenade(self.MyNode.id, myNode.x,myNode.y,velocity,direction,producer)
+                grenade.grenade_throw()
+
+                # msg = "grenade,%s,%s"%(myNode.get_position(), myNode.get_id())
+                # msg = msg.encode('utf-8')
+                # producer.send('grenade', msg)
             elif choice_int is '3':
                 print("Your health is = %s" % myNode.get_health())
             else:
