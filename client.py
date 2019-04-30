@@ -152,8 +152,8 @@ class Player:
 
 if __name__ == "__main__":
 
-    # client_id = os.environ['CLIENT_ID']
-    client_id = '1'
+    client_id = os.environ['CLIENT_ID']
+    #client_id = '1'
     broker = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
     myNode = Node(client_id, 3, 3, 100)
     GameSetup(broker, myNode)
