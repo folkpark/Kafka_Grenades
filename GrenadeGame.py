@@ -20,15 +20,13 @@ class GameSetup:
         print('client publishing %s id to %s' % (client.id, self.connect_topic))
 
         message = "{} {} {} {}".format(client.id, client.health, client.x, client.y).encode('utf8')
-
         producer = KafkaProducer(bootstrap_servers=self.broker_addr)
         producer.send(self.connect_topic, message)
 
     def server_setup(self):
         print('Server Connecting to players')
         find_players = KafkaConsumer(self.connect_topic, bootstrap_servers='ec2-3-95-28-49.compute-1.amazonaws.com:9092',
-                                     auto_offset_reset='earliest',
-                                     consumer_timeout_ms=5000,)
+                                     consumer_timeout_ms=20000,)
 
         for message in find_players:
             message = message.value.decode("utf-8")
