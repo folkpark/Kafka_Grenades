@@ -8,7 +8,7 @@ Y_MAX = 10
 
 
 class GrenadeServer:
-    broker_addr = 'ec2-34-207-68-81.compute-1.amazonaws.com:9092'
+    broker_addr = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
     game = GameSetup()
     player_dict = game.node_dict
     recv_threads_dict = {}
