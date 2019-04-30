@@ -77,9 +77,9 @@ class Player:
 
 if __name__ == "__main__":
 
-    client_id = 1
+    client_id = 2
     # myNode = Node(os.environ['CLIENT_ID'], 3, 3, 100)
-    myNode = Node(str(client_id), 3, 3, 100)
+    myNode = Node(str(client_id), 5, 3, 100)
     GameSetup(myNode)
     player = Player(myNode, 'ec2-34-207-68-81.compute-1.amazonaws.com:9092')
 

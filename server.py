@@ -18,6 +18,8 @@ class GrenadeServer:
     def set_server_threads(self):
         for player in self.player_dict.keys():
             self.recv_threads_dict[player] = threading.Thread(target=self.consumer_threads(player))
+        for thread in self.recv_threads_dict:
+            thread.start()
 
     def consumer_threads(self, topic):
 
