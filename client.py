@@ -91,12 +91,12 @@ if __name__ == "__main__":
     player = Player(myNode, broker)
 
     threads_L = []
-    producerThread = threading.Thread(target=player.producer())
+    producerThread = threading.Thread(target=player.producer)
     threads_L.append(producerThread)
-    consumerThread1 = threading.Thread(target=player.consumer('grenade'))
+    consumerThread1 = threading.Thread(target=player.consumer, args='grenade')
     threads_L.append(consumerThread1)
     consumerThread1.start()
-    consumerThread2 = threading.Thread(target=player.consumer(client_id))
+    consumerThread2 = threading.Thread(target=player.consumer, args=client_id)
     threads_L.append(consumerThread2)
     consumerThread2.start()
     time.sleep(1)
