@@ -1,3 +1,5 @@
+import time
+
 from GrenadeGame import GameSetup
 import threading
 from kafka import KafkaConsumer, KafkaProducer
@@ -9,7 +11,7 @@ Y_MAX = 10
 
 class GrenadeServer:
     broker_addr = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
-    game = GameSetup()
+    game = GameSetup(broker_addr)
     player_dict = game.node_dict
     recv_threads_dict = {}
     producer = KafkaProducer(bootstrap_servers=broker_addr)
@@ -17,9 +19,12 @@ class GrenadeServer:
 
     def set_server_threads(self):
         for player in self.player_dict.keys():
-            self.recv_threads_dict[player] = threading.Thread(target=self.consumer_threads(player))
-        for thread in self.recv_threads_dict:
+            self.recv_threads_dict[player] = threading.Thread(target=self.consumer_threads, args=player)
+        self.recv_threads_dict['grenade'] = threading.Thread(target=self.consumer_threads, args='grenade')
+        for thread in self.recv_threads_dict.values():
+            print('starting thread: %s' % thread)
             thread.start()
+            time.sleep(1)
 
     def consumer_threads(self, topic):
 
@@ -32,6 +37,8 @@ class GrenadeServer:
                 self.handle_update(message)
 
     def handle_grenade(self, message):
+
+        print('I see grenade %s' % message)
 
         player_id, x, y, velocity, direction, fuse_length, grenade_id = message.split()
         x = int(x)
@@ -83,4 +90,5 @@ class GrenadeServer:
 
 
 if __name__ == "__main__":
-    GrenadeServer()
+    server = GrenadeServer()
+    server.set_server_threads()

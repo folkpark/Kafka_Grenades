@@ -5,15 +5,15 @@ from Node import Node
 
 
 class GameSetup:
-    broker_addr = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
 
-    def __init__(self, node=None, connect_topic='players'):
+    def __init__(self, broker, node=None, connect_topic='players'):
+        self.broker_addr = broker
         self.connect_topic = connect_topic
+        self.node_dict = {}
         if node is not None:
             self.client_setup(node)
         else:
             self.server_setup()
-        self.node_dict = {}
 
     def client_setup(self, client):
         print('client publishing id %s to %s' % (client.id, self.connect_topic))
@@ -26,14 +26,14 @@ class GameSetup:
     def server_setup(self):
         print('Server Connecting to players')
         find_players = KafkaConsumer(self.connect_topic, bootstrap_servers=self.broker_addr,
-                                     consumer_timeout_ms=30000,)
+                                     consumer_timeout_ms=10000,)
 
         for message in find_players:
             message = message.value.decode("utf-8")
             player, health, x, y = message.split()
             node = Node(player, x, y, health)
             self.node_dict[player] = node
-            print('connected to %s' % message)
+            print('connected to Player %s with %s health located at (%s,%s)' % (player,health,x,y))
 
 
 class Grenade:
@@ -60,7 +60,8 @@ class Grenade:
         self.grenade_id = hashlib.md5(temp)
         msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction,
                                             self.fuse_length, self.grenade_id).encode('utf8')
-        self.producer.send('grenade', msg)
+        self.producer.send('grenade', msg).get(timeout=2)
+        print('I threw grenade %s' % msg)
 
     @staticmethod
     def fuse():

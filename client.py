@@ -82,11 +82,13 @@ class Player:
 
 if __name__ == "__main__":
 
-    client_id = os.environ['CLIENT_ID']
-    myNode = Node(os.environ['CLIENT_ID'], 3, 3, 100)
+    # client_id = os.environ['CLIENT_ID']
+    client_id = '1'
+    broker = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
+    myNode = Node(client_id, 3, 3, 100)
     #myNode = Node(str(client_id), 3, 3, 100)
-    GameSetup(myNode)
-    player = Player(myNode, 'ec2-3-95-28-49.compute-1.amazonaws.com:9092')
+    GameSetup(broker, myNode)
+    player = Player(myNode, broker)
 
     threads_L = []
     producerThread = threading.Thread(target=player.producer())
