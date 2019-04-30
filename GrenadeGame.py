@@ -26,7 +26,7 @@ class GameSetup:
     def server_setup(self):
         print('Server Connecting to players')
         find_players = KafkaConsumer(self.connect_topic, bootstrap_servers=self.broker_addr,
-                                     consumer_timeout_ms=10000,)
+                                     consumer_timeout_ms=4000,)
 
         for message in find_players:
             message = message.value.decode("utf-8")
@@ -41,7 +41,7 @@ class Grenade:
 
     def __init__(self, player_id, x, y, velocity, direction, producer,):
         self.grenade_id = None
-        self.fuse_length = str(Grenade.fuse)
+        self.fuse_length = str(Grenade.fuse())
         self.player_id = str(player_id)
         self.x = str(x)
         self.y = str(y)
@@ -57,7 +57,7 @@ class Grenade:
             self.velocity = '0'
 
         temp = (self.player_id + self.x + self.y + self.velocity + self.direction + str(self.fuse_length)).encode('utf8')
-        self.grenade_id = hashlib.md5(temp)
+        self.grenade_id = hashlib.md5(temp).hexdigest()
         msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction,
                                             self.fuse_length, self.grenade_id).encode('utf8')
         self.producer.send('grenade', msg).get(timeout=2)

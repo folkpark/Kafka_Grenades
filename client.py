@@ -5,17 +5,44 @@ import time
 import os
 from GrenadeGame import GameSetup, Grenade
 
+X_MAX = 10
+Y_MAX = 10
 
-# msg = "Producing %s" % (str(i))
-# msg = msg.encode('utf-8')
-# producer.send('test', msg).get(timeout=30)
+
+class PlayerThread(threading.Thread):
+
+    def __init__(self, __player, topic=None):
+        threading.Thread.__init__(self)
+        self.player = __player
+        self.topic = topic
+
+    def run(self):
+        if self.topic is None:
+            self.topic = 'producer'
+            player.sender()
+        else:
+            player.consumer(self.topic)
+        print('starting thread: %s' % self.topic)
+
 
 class Player:
 
-    def __init__(self, node, broker):
+    def __init__(self, node, __broker):
         self.MyNode = node
-        self.broker = broker
+        self.broker = __broker
         self.stop = False
+        self.threads_dict = {}
+        self.thrown_grenades = []
+        self.producer = KafkaProducer(bootstrap_servers=self.broker)
+
+    def set_threads(self):
+
+        self.threads_dict[str(self.MyNode.id)] = PlayerThread(self, 's_to_'+str(self.MyNode.id))
+        self.threads_dict['grenade'] = PlayerThread(self, 'grenade')
+        self.threads_dict['producer'] = PlayerThread(self)
+        for thread in self.threads_dict.values():
+            thread.start()
+
 
     def printMenu(self):
         print("\n\nEnter integer selection (q to quit)): ")
@@ -26,58 +53,101 @@ class Player:
         print("\n\n")
         return choice_int
 
-    def producer(self):
-        producer = KafkaProducer(bootstrap_servers=self.broker)
+    def sender(self):
+
         while self.stop is False:
             choice_int = self.printMenu()
             if choice_int is '1':
-                newLoc = input("New location = ")
-                newLoc = int(newLoc)
-                print("Updating Location to %d" % newLoc)
+                x = input("New X coord = ")
+                y = input('New Y coord = ')
+                print("Updating Location to (%s,%s)" % (x, y))
                 # Update Location HERE
-                myNode.set_position(newLoc)
-                message = "{} {} {} {}".format(self.MyNode.id, self.MyNode.health, self.MyNode.x, self.MyNode.y).encode('utf8')
-                producer.send(self.MyNode.id, message)
-                print("Updated location to %s" % myNode.get_position())
+                self.MyNode.x = x
+                self.MyNode.y = y
+                message = "{} {} {} {}".format(self.MyNode.id, self.MyNode.x, self.MyNode.y, self.MyNode.health).encode('utf8')
+                print('Sending update message: %s' % message)
+                self.producer.send(self.MyNode.id, message)
             elif choice_int is '2':
                 print("Throwing Grenade ... ")
                 # Grenade Throw logic HERE
                 # Message format: "<type>,<position thrown to>, <from what client_id>"
                 direction = input('Enter a direction(0, 90, 180, 270): ')
                 velocity = input('Velocity(0-5): ')
-                grenade = Grenade(str(self.MyNode.id), str(myNode.x),str(myNode.y),str(velocity),
-                                  str(direction),producer)
+                grenade = Grenade(str(self.MyNode.id), str(myNode.x), str(myNode.y), str(velocity),
+                                  str(direction), self.producer)
                 grenade.grenade_throw()
 
-                # msg = "grenade,%s,%s"%(myNode.get_position(), myNode.get_id())
-                # msg = msg.encode('utf-8')
-                # producer.send('grenade', msg)
             elif choice_int is '3':
                 print("Your health is = %s" % myNode.get_health())
             else:
                 print("Good Bye!")
-                producer.close()
+                self.producer.close()
                 self.stop = True
                 break
+        print('Game Over')
 
     # AUTO_OFFSET_RESET_CONFIG = 'earliest' is used if consumers need to look
     # back through the queue
     def consumer(self, topic):
-
         while self.stop is False:
-            consumer = KafkaConsumer(topic, bootstrap_servers=self.broker, consumer_timeout_ms=15000)
-            # Should be infinite loop
+            consumer = KafkaConsumer(topic, bootstrap_servers=self.broker,)
+
             for messages in consumer:
                 message = messages.value.decode("utf-8")
-                msgType,position,sender_id = message.split(',')
-                if msgType == 'grenade' and sender_id != myNode.get_id():
-                    # Sub 45 health points from current health
-                    myNode.set_health(myNode.get_health() - 45)
-                    # If client is out of health they die
-                    if myNode.get_health() <= 0:
-                        print("YOU DIED!!!")
-                    # Print the Grenade event to the screen
-                    print("\n\nI was hit with %s, at position %s, from %s \n\n" % (msgType, position, sender_id))
+
+                if topic == 'grenade':
+                    self.handle_grenade(message)
+                else:
+                    self.handle_update(message)
+
+    def handle_update(self, message):
+        msg_type, health, sender = message.split()
+
+        print('I received %s from %s' % (msg_type, sender))
+
+        if msg_type == 'SOSORRY':
+            print('SOSORRY received, I am dead :(')
+            self.stop = True
+
+    def handle_grenade(self, message):
+
+        print('I see grenade %s' % message)
+
+        player_id, x, y, velocity, direction, fuse_length, grenade_id = message.split()
+        x = int(x)
+        y = int(y)
+        velocity = int(velocity)
+        fuse_length = round(float(fuse_length))
+
+        if grenade_id in self.thrown_grenades:
+            pass
+        else:
+            self.thrown_grenades.append(grenade_id)
+
+            y_pos = None
+            x_pos = None
+
+            if direction == '90' or direction == '270':
+                y_pos = y
+                x_pos = x + (velocity * fuse_length)
+
+                if x_pos > X_MAX:
+                    x_pos = X_MAX
+                if x_pos < 0:
+                    x_pos = 0
+                else:
+                    x_pos = x
+                    y_pos = y + (velocity * fuse_length)
+                    if y_pos > Y_MAX:
+                        y_pos = Y_MAX
+                    if y_pos < 0:
+                        y_pos = 0
+
+                    if int(self.MyNode.x) == x_pos and int(self.MyNode.y) == y_pos:
+
+                        print('Grenade exploded at my pos. Waiting for SO SORRY message')
+                    else:
+                        print('Grenade did not explode at my location')
 
 
 if __name__ == "__main__":
@@ -86,18 +156,9 @@ if __name__ == "__main__":
     client_id = '1'
     broker = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
     myNode = Node(client_id, 3, 3, 100)
-    #myNode = Node(str(client_id), 3, 3, 100)
     GameSetup(broker, myNode)
     player = Player(myNode, broker)
 
-    threads_L = []
-    producerThread = threading.Thread(target=player.producer)
-    threads_L.append(producerThread)
-    consumerThread1 = threading.Thread(target=player.consumer, args='grenade')
-    threads_L.append(consumerThread1)
-    consumerThread1.start()
-    consumerThread2 = threading.Thread(target=player.consumer, args=client_id)
-    threads_L.append(consumerThread2)
-    consumerThread2.start()
-    time.sleep(1)
-    producerThread.start()
+    player.set_threads()
+
+

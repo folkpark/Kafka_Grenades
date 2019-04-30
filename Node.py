@@ -3,7 +3,6 @@
 
 
 class Node:
-    # consumer_dict = {}
 
     def __init__(self, client_id, x, y, health):
         self.id = client_id

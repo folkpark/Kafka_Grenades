@@ -3,10 +3,21 @@ import time
 from GrenadeGame import GameSetup
 import threading
 from kafka import KafkaConsumer, KafkaProducer
-from collections import defaultdict
 
 X_MAX = 10
 Y_MAX = 10
+
+
+class ServerThreads(threading.Thread):
+
+    def __init__(self, topic, __server):
+        threading.Thread.__init__(self)
+        self.topic = topic
+        self.server = __server
+
+    def run(self):
+        print('starting thread: %s' % self.topic)
+        server.consumer_threads(self.topic)
 
 
 class GrenadeServer:
@@ -19,10 +30,10 @@ class GrenadeServer:
 
     def set_server_threads(self):
         for player in self.player_dict.keys():
-            self.recv_threads_dict[player] = threading.Thread(target=self.consumer_threads, args=player)
-        self.recv_threads_dict['grenade'] = threading.Thread(target=self.consumer_threads, args='grenade')
+            self.recv_threads_dict[player] = ServerThreads(player, self)
+        self.recv_threads_dict['grenade'] = ServerThreads('grenade', self)
         for thread in self.recv_threads_dict.values():
-            print('starting thread: %s' % thread)
+
             thread.start()
             time.sleep(1)
 
@@ -46,7 +57,7 @@ class GrenadeServer:
         velocity = int(velocity)
         fuse_length = round(float(fuse_length))
 
-        if self.player_dict[player_id].health > 0:
+        if int(self.player_dict[player_id].health) > 0:
             if grenade_id in self.thrown_grenades:
                 print('Duplicate grenade id: %s' % grenade_id)
             else:
@@ -73,19 +84,23 @@ class GrenadeServer:
                         y_pos = 0
 
                 for player in self.player_dict:
-                    if self.player_dict[player].x == x_pos and self.player_dict[player].y == y_pos:
-                        self.producer.send(player, b'SO SORRY')
+                    if int(self.player_dict[player].x) == x_pos and int(self.player_dict[player].y) == y_pos:
+                        message = '{} {} {}'.format('SOSORRY', '0', 'server').encode('utf8')
+                        print('Sending SO SORRY to %s' % player)
+                        self.producer.send('s_to_'+player, message)
                         self.player_dict[player].health = 0
 
     def handle_update(self, message):
-
+        print('I see update %s' % message)
         player_id, x, y, health = message.split()
 
         self.player_dict[player_id].x = x
         self.player_dict[player_id].y = y
 
+        print('Player %s location set to (%s,%s)' % (player_id, self.player_dict[player_id].x, self.player_dict[player_id].y))
+
         if self.player_dict[player_id].health != health:
-            msg = '{} {}'.format('health', self.player_dict[player_id].health).encode('utf8')
+            msg = '{} {} {}'.format('health', self.player_dict[player_id].health, 'server').encode('utf8')
             self.producer.send(player_id, msg)
 
 
