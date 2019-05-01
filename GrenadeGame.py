@@ -6,7 +6,7 @@ from Node import Node
 
 class GameSetup:
 
-    def __init__(self, broker, node=None, connect_topic='players'):
+    def __init__(self, broker, node=None, connect_topic='players_connect'):
         self.broker_addr = broker
         self.connect_topic = connect_topic
         self.node_dict = {}
@@ -16,15 +16,16 @@ class GameSetup:
             self.server_setup()
 
     def client_setup(self, client):
-        print('client publishing id %s to %s' % (client.id, self.connect_topic))
+        print('\nclient publishing id %s to %s' % (client.id, self.connect_topic))
 
         message = "{} {} {} {}".format(client.id, client.health, client.x, client.y).encode('utf8')
 
         producer = KafkaProducer(bootstrap_servers=self.broker_addr)
         producer.send(self.connect_topic, message).get(timeout=2)
+        print('\n')
 
     def server_setup(self):
-        print('Server Connecting to players')
+        print('\nServer Connecting to players:')
         find_players = KafkaConsumer(self.connect_topic, bootstrap_servers=self.broker_addr,
                                      consumer_timeout_ms=4000,)
 
@@ -34,10 +35,11 @@ class GameSetup:
             node = Node(player, x, y, health)
             self.node_dict[player] = node
             print('connected to Player %s with %s health located at (%s,%s)' % (player,health,x,y))
+        print('\n\n')
 
 
 class Grenade:
-    spoon_depressed: bool
+    grenade_channel = 'grenade_channel'
 
     def __init__(self, player_id, x, y, velocity, direction, producer,):
         self.grenade_id = None
@@ -60,8 +62,8 @@ class Grenade:
         self.grenade_id = hashlib.md5(temp).hexdigest()
         msg = '{} {} {} {} {} {} {}'.format(self.player_id, self.x, self.y, self.velocity, self.direction,
                                             self.fuse_length, self.grenade_id).encode('utf8')
-        self.producer.send('grenade', msg).get(timeout=2)
-        print('I threw grenade %s' % msg)
+        self.producer.send(self.grenade_channel, msg).get(timeout=2)
+        print('\n\nI threw grenade %s' % msg)
 
     @staticmethod
     def fuse():
