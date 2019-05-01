@@ -166,7 +166,6 @@ if __name__ == "__main__":
 
     GameSetup(broker, myNode)
     player = Player(myNode, broker)
-
     player.set_threads()
 
 
