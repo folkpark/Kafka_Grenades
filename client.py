@@ -39,7 +39,7 @@ class Player:
     def set_threads(self):
 
         self.threads_list.append(PlayerThread(self, 'server_to_'+str(self.MyNode.id)))
-        self.threads_list.append(PlayerThread(self, 'grenade'))
+        self.threads_list.append(PlayerThread(self, self.grenade_channel))
         self.threads_list.append(PlayerThread(self, 'producer'))
         for thread in self.threads_list:
             thread.start()
