@@ -159,8 +159,11 @@ if __name__ == "__main__":
 
     # client_id = os.environ['CLIENT_ID']
     client_id = 'justin'
+    #client_id = 'parker'
     broker = 'ec2-3-95-28-49.compute-1.amazonaws.com:9092'
-    myNode = Node(client_id, 10, 5, 100)
+    myNode = Node(client_id, 10, 5, 100) # justin's location
+    #myNode = Node(client_id, 0, 5, 100) # parker's location
+
     GameSetup(broker, myNode)
     player = Player(myNode, broker)
 
